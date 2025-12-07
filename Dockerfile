@@ -51,19 +51,12 @@ RUN find . -type f -name "*.pyc" -delete 2>/dev/null || true
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# MySQL配置
-ENV MYSQL_HOST=38.207.179.164
-ENV MYSQL_PORT=3306
-ENV MYSQL_USER=tgbot_verify
-ENV MYSQL_PASSWORD=mYC5yTpwAMcLm3iT
-ENV MYSQL_DATABASE=tgbot_verify
+# MySQL配置（通过 docker-compose.yml 或命令行传入）
+# 不在这里硬编码，使用环境变量
 
-# 暴露端口
-EXPOSE 8080
-
-# 健康检查
+# 健康检查（检查机器人进程）
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import pymysql; pymysql.connect(host='38.207.179.164', user='tgbot_verify', password='mYC5yTpwAMcLm3iT', database='tgbot_verify').close()" || exit 1
+    CMD pgrep -f "python.*bot.py" || exit 1
 
-# 启动并发版bot
-CMD ["python", "-u", "bot_concurrent.py"]
+# 启动机器人
+CMD ["python", "-u", "bot.py"]
