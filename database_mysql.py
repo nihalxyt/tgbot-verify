@@ -1,6 +1,6 @@
-"""MySQL 数据库实现
+"""MySQL database implementation.
 
-使用提供的MySQL服务器进行数据存储
+Uses the provided MySQL server for data storage.
 """
 import logging
 from datetime import datetime, timedelta
@@ -32,7 +32,12 @@ class MySQLDatabase:
             'charset': 'utf8mb4',
             'autocommit': False,
         }
-        logger.info(f"MySQL 数据库初始化: {self.config['user']}@{self.config['host']}/{self.config['database']}")
+        logger.info(
+            "MySQL database initialized: %s@%s/%s",
+            self.config["user"],
+            self.config["host"],
+            self.config["database"],
+        )
         self.init_database()
 
     def get_connection(self):
@@ -132,10 +137,10 @@ class MySQLDatabase:
             )
 
             conn.commit()
-            logger.info("MySQL 数据库表初始化完成")
+            logger.info("MySQL tables initialized successfully")
 
         except Exception as e:
-            logger.error(f"初始化数据库失败: {e}")
+            logger.error("Failed to initialize database: %s", e)
             conn.rollback()
             raise
         finally:
@@ -179,7 +184,7 @@ class MySQLDatabase:
             conn.rollback()
             return False
         except Exception as e:
-            logger.error(f"创建用户失败: {e}")
+            logger.error("Failed to create user: %s", e)
             conn.rollback()
             return False
         finally:
@@ -228,7 +233,7 @@ class MySQLDatabase:
             conn.commit()
             return True
         except Exception as e:
-            logger.error(f"拉黑用户失败: {e}")
+            logger.error("Failed to block user: %s", e)
             conn.rollback()
             return False
         finally:
@@ -245,7 +250,7 @@ class MySQLDatabase:
             conn.commit()
             return True
         except Exception as e:
-            logger.error(f"取消拉黑失败: {e}")
+            logger.error("Failed to unblock user: %s", e)
             conn.rollback()
             return False
         finally:
@@ -277,7 +282,7 @@ class MySQLDatabase:
             conn.commit()
             return True
         except Exception as e:
-            logger.error(f"增加积分失败: {e}")
+            logger.error("Failed to add credits: %s", e)
             conn.rollback()
             return False
         finally:
@@ -301,7 +306,7 @@ class MySQLDatabase:
             conn.commit()
             return True
         except Exception as e:
-            logger.error(f"扣除积分失败: {e}")
+            logger.error("Failed to deduct credits: %s", e)
             conn.rollback()
             return False
         finally:
@@ -350,7 +355,7 @@ class MySQLDatabase:
             return success
             
         except Exception as e:
-            logger.error(f"签到失败: {e}")
+            logger.error("Check-in failed: %s", e)
             conn.rollback()
             return False
         finally:
@@ -377,7 +382,7 @@ class MySQLDatabase:
             conn.commit()
             return True
         except Exception as e:
-            logger.error(f"添加验证记录失败: {e}")
+            logger.error("Failed to add verification record: %s", e)
             conn.rollback()
             return False
         finally:
@@ -427,11 +432,11 @@ class MySQLDatabase:
             return True
 
         except pymysql.err.IntegrityError:
-            logger.error(f"卡密已存在: {key_code}")
+            logger.error("Key already exists: %s", key_code)
             conn.rollback()
             return False
         except Exception as e:
-            logger.error(f"创建卡密失败: {e}")
+            logger.error("Failed to create key: %s", e)
             conn.rollback()
             return False
         finally:
@@ -493,7 +498,7 @@ class MySQLDatabase:
             return card["balance"]
 
         except Exception as e:
-            logger.error(f"使用卡密失败: {e}")
+            logger.error("Failed to redeem key: %s", e)
             conn.rollback()
             return None
         finally:
@@ -547,4 +552,3 @@ class MySQLDatabase:
 
 # 创建全局实例的别名，保持与SQLite版本的兼容性
 Database = MySQLDatabase
-

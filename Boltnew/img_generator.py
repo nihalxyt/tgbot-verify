@@ -45,7 +45,7 @@ def _get_browser_context():
                 device_scale_factor=2,
             )
         except ImportError:
-            raise Exception("需要安装 playwright: pip install playwright && playwright install chromium")
+            raise Exception("Playwright is required: pip install playwright && playwright install chromium")
     return _browser_context
 
 
@@ -77,7 +77,7 @@ def _html_to_png(html_content: str, width: int = 1200, height: int = None) -> by
             page.close()
 
     except Exception as e:
-        raise Exception(f"生成图片失败: {str(e)}")
+        raise Exception(f"Image generation failed: {str(e)}")
 
 
 def generate_teacher_card_html(first_name: str, last_name: str, psu_id: str) -> str:

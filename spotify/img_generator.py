@@ -370,9 +370,9 @@ def generate_image(first_name, last_name, school_id='2565'):
         return screenshot_bytes
 
     except ImportError:
-        raise Exception("需要安装 playwright: pip install playwright && playwright install chromium")
+        raise Exception("Playwright is required: pip install playwright && playwright install chromium")
     except Exception as e:
-        raise Exception(f"生成图片失败: {str(e)}")
+        raise Exception(f"Image generation failed: {str(e)}")
 
 
 if __name__ == '__main__':
@@ -384,14 +384,14 @@ if __name__ == '__main__':
     if sys.platform == 'win32':
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-    print("测试 PSU 图片生成...")
+    print("Testing PSU image generation...")
 
     first_name = "John"
     last_name = "Smith"
 
-    print(f"姓名: {first_name} {last_name}")
+    print(f"Name: {first_name} {last_name}")
     print(f"PSU ID: {generate_psu_id()}")
-    print(f"邮箱: {generate_psu_email(first_name, last_name)}")
+    print(f"Email: {generate_psu_email(first_name, last_name)}")
 
     try:
         img_data = generate_image(first_name, last_name)
@@ -400,8 +400,8 @@ if __name__ == '__main__':
         with open('test_psu_card.png', 'wb') as f:
             f.write(img_data)
 
-        print(f"✓ 图片生成成功! 大小: {len(img_data)} bytes")
-        print("✓ 已保存为 test_psu_card.png")
+        print(f"✓ Image generated successfully! Size: {len(img_data)} bytes")
+        print("✓ Saved as test_psu_card.png")
 
     except Exception as e:
-        print(f"✗ 错误: {e}")
+        print(f"✗ Error: {e}")

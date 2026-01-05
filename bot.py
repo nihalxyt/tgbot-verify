@@ -1,4 +1,4 @@
-"""Telegram 机器人主程序"""
+"""Telegram bot entry point."""
 import logging
 from functools import partial
 
@@ -41,12 +41,16 @@ logger = logging.getLogger(__name__)
 
 
 async def error_handler(update: object, context) -> None:
-    """全局错误处理"""
-    logger.exception("处理更新时发生异常: %s", context.error, exc_info=context.error)
+    """Global error handler."""
+    logger.exception(
+        "Unhandled exception while processing update: %s",
+        context.error,
+        exc_info=context.error,
+    )
 
 
 def main():
-    """主函数"""
+    """Main entry point."""
     # 初始化数据库
     db = Database()
 
@@ -86,7 +90,7 @@ def main():
     # 注册错误处理器
     application.add_error_handler(error_handler)
 
-    logger.info("机器人启动中...")
+    logger.info("Bot starting...")
     application.run_polling(drop_pending_updates=True)
 
 
