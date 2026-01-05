@@ -1,4 +1,4 @@
-"""验证命令处理器"""
+"""Verification command handlers."""
 import asyncio
 import logging
 import httpx
@@ -29,15 +29,15 @@ logger = logging.getLogger(__name__)
 
 
 async def verify_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /verify 命令 - Gemini One Pro"""
+    """Handle /verify - Gemini One Pro."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     if not context.args:
@@ -56,18 +56,18 @@ async def verify_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db:
 
     verification_id = OneVerifier.parse_verification_id(url)
     if not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+        await update.message.reply_text("Invalid SheerID link. Please check and try again.")
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
-        await update.message.reply_text("扣除积分失败，请稍后重试。")
+        await update.message.reply_text("Failed to deduct credits. Please try again later.")
         return
 
     processing_msg = await update.message.reply_text(
-        f"开始处理 Gemini One Pro 认证...\n"
-        f"验证ID: {verification_id}\n"
-        f"已扣除 {VERIFY_COST} 积分\n\n"
-        "请稍候，这可能需要 1-2 分钟..."
+        f"Starting Gemini One Pro verification...\n"
+        f"Verification ID: {verification_id}\n"
+        f"{VERIFY_COST} credits deducted\n\n"
+        "Please wait. This may take 1-2 minutes..."
     )
 
     try:
@@ -83,37 +83,37 @@ async def verify_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db:
         )
 
         if result["success"]:
-            result_msg = "✅ 认证成功！\n\n"
+            result_msg = "✅ Verification successful!\n\n"
             if result.get("pending"):
-                result_msg += "文档已提交，等待人工审核。\n"
+                result_msg += "Documents submitted and pending manual review.\n"
             if result.get("redirect_url"):
-                result_msg += f"跳转链接：\n{result['redirect_url']}"
+                result_msg += f"Redirect link:\n{result['redirect_url']}"
             await processing_msg.edit_text(result_msg)
         else:
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 认证失败：{result.get('message', '未知错误')}\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Verification failed: {result.get('message', 'Unknown error')}\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
     except Exception as e:
-        logger.error("验证过程出错: %s", e)
+        logger.error("Verification process error: %s", e)
         db.add_balance(user_id, VERIFY_COST)
         await processing_msg.edit_text(
-            f"❌ 处理过程中出现错误：{str(e)}\n\n"
-            f"已退回 {VERIFY_COST} 积分"
+            f"❌ An error occurred during processing: {str(e)}\n\n"
+            f"{VERIFY_COST} credits refunded"
         )
 
 
 async def verify2_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /verify2 命令 - ChatGPT Teacher K12"""
+    """Handle /verify2 - ChatGPT Teacher K12."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     if not context.args:
@@ -132,18 +132,18 @@ async def verify2_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
 
     verification_id = K12Verifier.parse_verification_id(url)
     if not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+        await update.message.reply_text("Invalid SheerID link. Please check and try again.")
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
-        await update.message.reply_text("扣除积分失败，请稍后重试。")
+        await update.message.reply_text("Failed to deduct credits. Please try again later.")
         return
 
     processing_msg = await update.message.reply_text(
-        f"开始处理 ChatGPT Teacher K12 认证...\n"
-        f"验证ID: {verification_id}\n"
-        f"已扣除 {VERIFY_COST} 积分\n\n"
-        "请稍候，这可能需要 1-2 分钟..."
+        f"Starting ChatGPT Teacher K12 verification...\n"
+        f"Verification ID: {verification_id}\n"
+        f"{VERIFY_COST} credits deducted\n\n"
+        "Please wait. This may take 1-2 minutes..."
     )
 
     try:
@@ -159,37 +159,37 @@ async def verify2_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         )
 
         if result["success"]:
-            result_msg = "✅ 认证成功！\n\n"
+            result_msg = "✅ Verification successful!\n\n"
             if result.get("pending"):
-                result_msg += "文档已提交，等待人工审核。\n"
+                result_msg += "Documents submitted and pending manual review.\n"
             if result.get("redirect_url"):
-                result_msg += f"跳转链接：\n{result['redirect_url']}"
+                result_msg += f"Redirect link:\n{result['redirect_url']}"
             await processing_msg.edit_text(result_msg)
         else:
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 认证失败：{result.get('message', '未知错误')}\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Verification failed: {result.get('message', 'Unknown error')}\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
     except Exception as e:
-        logger.error("验证过程出错: %s", e)
+        logger.error("Verification process error: %s", e)
         db.add_balance(user_id, VERIFY_COST)
         await processing_msg.edit_text(
-            f"❌ 处理过程中出现错误：{str(e)}\n\n"
-            f"已退回 {VERIFY_COST} 积分"
+            f"❌ An error occurred during processing: {str(e)}\n\n"
+            f"{VERIFY_COST} credits refunded"
         )
 
 
 async def verify3_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /verify3 命令 - Spotify Student"""
+    """Handle /verify3 - Spotify Student."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     if not context.args:
@@ -209,19 +209,19 @@ async def verify3_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
     # 解析 verificationId
     verification_id = SpotifyVerifier.parse_verification_id(url)
     if not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+        await update.message.reply_text("Invalid SheerID link. Please check and try again.")
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
-        await update.message.reply_text("扣除积分失败，请稍后重试。")
+        await update.message.reply_text("Failed to deduct credits. Please try again later.")
         return
 
     processing_msg = await update.message.reply_text(
-        f"🎵 开始处理 Spotify Student 认证...\n"
-        f"已扣除 {VERIFY_COST} 积分\n\n"
-        "📝 正在生成学生信息...\n"
-        "🎨 正在生成学生证 PNG...\n"
-        "📤 正在提交文档..."
+        f"🎵 Starting Spotify Student verification...\n"
+        f"{VERIFY_COST} credits deducted\n\n"
+        "📝 Generating student details...\n"
+        "🎨 Generating student ID PNG...\n"
+        "📤 Submitting documents..."
     )
 
     # 使用信号量控制并发
@@ -241,38 +241,38 @@ async def verify3_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         )
 
         if result["success"]:
-            result_msg = "✅ Spotify 学生认证成功！\n\n"
+            result_msg = "✅ Spotify Student verification successful!\n\n"
             if result.get("pending"):
-                result_msg += "✨ 文档已提交，等待 SheerID 审核\n"
-                result_msg += "⏱️ 预计审核时间：几分钟内\n\n"
+                result_msg += "✨ Documents submitted and pending SheerID review\n"
+                result_msg += "⏱️ Expected review time: within a few minutes\n\n"
             if result.get("redirect_url"):
-                result_msg += f"🔗 跳转链接：\n{result['redirect_url']}"
+                result_msg += f"🔗 Redirect link:\n{result['redirect_url']}"
             await processing_msg.edit_text(result_msg)
         else:
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 认证失败：{result.get('message', '未知错误')}\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Verification failed: {result.get('message', 'Unknown error')}\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
     except Exception as e:
-        logger.error("Spotify 验证过程出错: %s", e)
+        logger.error("Spotify verification process error: %s", e)
         db.add_balance(user_id, VERIFY_COST)
         await processing_msg.edit_text(
-            f"❌ 处理过程中出现错误：{str(e)}\n\n"
-            f"已退回 {VERIFY_COST} 积分"
+            f"❌ An error occurred during processing: {str(e)}\n\n"
+            f"{VERIFY_COST} credits refunded"
         )
 
 
 async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /verify4 命令 - Bolt.new Teacher（自动获取code版）"""
+    """Handle /verify4 - Bolt.new Teacher (auto code retrieval)."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     if not context.args:
@@ -294,17 +294,17 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
     verification_id = BoltnewVerifier.parse_verification_id(url)
 
     if not external_user_id and not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+        await update.message.reply_text("Invalid SheerID link. Please check and try again.")
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
-        await update.message.reply_text("扣除积分失败，请稍后重试。")
+        await update.message.reply_text("Failed to deduct credits. Please try again later.")
         return
 
     processing_msg = await update.message.reply_text(
-        f"🚀 开始处理 Bolt.new Teacher 认证...\n"
-        f"已扣除 {VERIFY_COST} 积分\n\n"
-        "📤 正在提交文档..."
+        f"🚀 Starting Bolt.new Teacher verification...\n"
+        f"{VERIFY_COST} credits deducted\n\n"
+        "📤 Submitting documents..."
     )
 
     # 使用信号量控制并发
@@ -320,8 +320,8 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
             # 提交失败，退款
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 文档提交失败：{result.get('message', '未知错误')}\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Document submission failed: {result.get('message', 'Unknown error')}\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
             return
         
@@ -329,17 +329,17 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         if not vid:
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 未获取到验证ID\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Failed to retrieve the verification ID\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
             return
         
         # 更新消息
         await processing_msg.edit_text(
-            f"✅ 文档已提交！\n"
-            f"📋 验证ID: `{vid}`\n\n"
-            f"🔍 正在自动获取认证码...\n"
-            f"（最多等待20秒）"
+            f"✅ Documents submitted!\n"
+            f"📋 Verification ID: `{vid}`\n\n"
+            f"🔍 Automatically retrieving the verification code...\n"
+            f"(Waiting up to 20 seconds)"
         )
         
         # 第2步：自动获取认证码（最多20秒）
@@ -348,14 +348,14 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         if code:
             # 成功获取
             result_msg = (
-                f"🎉 认证成功！\n\n"
-                f"✅ 文档已提交\n"
-                f"✅ 审核已通过\n"
-                f"✅ 认证码已获取\n\n"
-                f"🎁 认证码: `{code}`\n"
+                f"🎉 Verification successful!\n\n"
+                f"✅ Documents submitted\n"
+                f"✅ Review approved\n"
+                f"✅ Verification code retrieved\n\n"
+                f"🎁 Verification code: `{code}`\n"
             )
             if result.get("redirect_url"):
-                result_msg += f"\n🔗 跳转链接:\n{result['redirect_url']}"
+                result_msg += f"\n🔗 Redirect link:\n{result['redirect_url']}"
             
             await processing_msg.edit_text(result_msg)
             
@@ -371,12 +371,12 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         else:
             # 20秒内未获取到，让用户稍后查询
             await processing_msg.edit_text(
-                f"✅ 文档已提交成功！\n\n"
-                f"⏳ 认证码尚未生成（可能需要1-5分钟审核）\n\n"
-                f"📋 验证ID: `{vid}`\n\n"
-                f"💡 请稍后使用以下命令查询:\n"
+                f"✅ Documents submitted successfully!\n\n"
+                f"⏳ The verification code is not ready yet (review may take 1-5 minutes)\n\n"
+                f"📋 Verification ID: `{vid}`\n\n"
+                f"💡 Please check later with:\n"
                 f"`/getV4Code {vid}`\n\n"
-                f"注意：积分已消耗，稍后查询无需再付费"
+                f"Note: credits have already been deducted. No additional charge for later checks."
             )
             
             # 保存待处理记录
@@ -390,11 +390,11 @@ async def verify4_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
             )
             
     except Exception as e:
-        logger.error("Bolt.new 验证过程出错: %s", e)
+        logger.error("Bolt.new verification process error: %s", e)
         db.add_balance(user_id, VERIFY_COST)
         await processing_msg.edit_text(
-            f"❌ 处理过程中出现错误：{str(e)}\n\n"
-            f"已退回 {VERIFY_COST} 积分"
+            f"❌ An error occurred during processing: {str(e)}\n\n"
+            f"{VERIFY_COST} credits refunded"
         )
 
 
@@ -403,15 +403,15 @@ async def _auto_get_reward_code(
     max_wait: int = 20,
     interval: int = 5
 ) -> Optional[str]:
-    """自动获取认证码（轻量级轮询，不影响并发）
+    """Automatically fetch the verification code (lightweight polling, no concurrency impact).
     
     Args:
-        verification_id: 验证ID
-        max_wait: 最大等待时间（秒）
-        interval: 轮询间隔（秒）
+        verification_id: Verification ID
+        max_wait: Maximum wait time in seconds
+        interval: Polling interval in seconds
         
     Returns:
-        str: 认证码，如果获取失败返回None
+        str: The verification code, or None if not available
     """
     import time
     start_time = time.time()
@@ -424,7 +424,10 @@ async def _auto_get_reward_code(
             
             # 检查是否超时
             if elapsed >= max_wait:
-                logger.info(f"自动获取code超时({elapsed}秒)，让用户手动查询")
+                logger.info(
+                    "Auto code retrieval timed out (%s seconds). Asking user to check manually.",
+                    elapsed,
+                )
                 return None
             
             try:
@@ -441,11 +444,15 @@ async def _auto_get_reward_code(
                         # 获取认证码
                         code = data.get("rewardCode") or data.get("rewardData", {}).get("rewardCode")
                         if code:
-                            logger.info(f"✅ 自动获取code成功: {code} (耗时{elapsed}秒)")
+                            logger.info(
+                                "✅ Auto code retrieval succeeded: %s (elapsed %s seconds)",
+                                code,
+                                elapsed,
+                            )
                             return code
                     elif current_step == "error":
                         # 审核失败
-                        logger.warning(f"审核失败: {data.get('errorIds', [])}")
+                        logger.warning("Review failed: %s", data.get("errorIds", []))
                         return None
                     # else: pending，继续等待
                 
@@ -453,22 +460,22 @@ async def _auto_get_reward_code(
                 await asyncio.sleep(interval)
                 
             except Exception as e:
-                logger.warning(f"查询认证码出错: {e}")
+                logger.warning("Error while checking verification code: %s", e)
                 await asyncio.sleep(interval)
     
     return None
 
 
 async def verify5_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /verify5 命令 - YouTube Student Premium"""
+    """Handle /verify5 - YouTube Student Premium."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     if not context.args:
@@ -488,19 +495,19 @@ async def verify5_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
     # 解析 verificationId
     verification_id = YouTubeVerifier.parse_verification_id(url)
     if not verification_id:
-        await update.message.reply_text("无效的 SheerID 链接，请检查后重试。")
+        await update.message.reply_text("Invalid SheerID link. Please check and try again.")
         return
 
     if not db.deduct_balance(user_id, VERIFY_COST):
-        await update.message.reply_text("扣除积分失败，请稍后重试。")
+        await update.message.reply_text("Failed to deduct credits. Please try again later.")
         return
 
     processing_msg = await update.message.reply_text(
-        f"📺 开始处理 YouTube Student Premium 认证...\n"
-        f"已扣除 {VERIFY_COST} 积分\n\n"
-        "📝 正在生成学生信息...\n"
-        "🎨 正在生成学生证 PNG...\n"
-        "📤 正在提交文档..."
+        f"📺 Starting YouTube Student Premium verification...\n"
+        f"{VERIFY_COST} credits deducted\n\n"
+        "📝 Generating student details...\n"
+        "🎨 Generating student ID PNG...\n"
+        "📤 Submitting documents..."
     )
 
     # 使用信号量控制并发
@@ -520,53 +527,53 @@ async def verify5_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db
         )
 
         if result["success"]:
-            result_msg = "✅ YouTube Student Premium 认证成功！\n\n"
+            result_msg = "✅ YouTube Student Premium verification successful!\n\n"
             if result.get("pending"):
-                result_msg += "✨ 文档已提交，等待 SheerID 审核\n"
-                result_msg += "⏱️ 预计审核时间：几分钟内\n\n"
+                result_msg += "✨ Documents submitted and pending SheerID review\n"
+                result_msg += "⏱️ Expected review time: within a few minutes\n\n"
             if result.get("redirect_url"):
-                result_msg += f"🔗 跳转链接：\n{result['redirect_url']}"
+                result_msg += f"🔗 Redirect link:\n{result['redirect_url']}"
             await processing_msg.edit_text(result_msg)
         else:
             db.add_balance(user_id, VERIFY_COST)
             await processing_msg.edit_text(
-                f"❌ 认证失败：{result.get('message', '未知错误')}\n\n"
-                f"已退回 {VERIFY_COST} 积分"
+                f"❌ Verification failed: {result.get('message', 'Unknown error')}\n\n"
+                f"{VERIFY_COST} credits refunded"
             )
     except Exception as e:
-        logger.error("YouTube 验证过程出错: %s", e)
+        logger.error("YouTube verification process error: %s", e)
         db.add_balance(user_id, VERIFY_COST)
         await processing_msg.edit_text(
-            f"❌ 处理过程中出现错误：{str(e)}\n\n"
-            f"已退回 {VERIFY_COST} 积分"
+            f"❌ An error occurred during processing: {str(e)}\n\n"
+            f"{VERIFY_COST} credits refunded"
         )
 
 
 async def getV4Code_command(update: Update, context: ContextTypes.DEFAULT_TYPE, db: Database):
-    """处理 /getV4Code 命令 - 获取 Bolt.new Teacher 认证码"""
+    """Handle /getV4Code - fetch Bolt.new Teacher verification code."""
     user_id = update.effective_user.id
 
     if db.is_user_blocked(user_id):
-        await update.message.reply_text("您已被拉黑，无法使用此功能。")
+        await update.message.reply_text("You are blocked and cannot use this feature.")
         return
 
     if not db.user_exists(user_id):
-        await update.message.reply_text("请先使用 /start 注册。")
+        await update.message.reply_text("Please register first with /start.")
         return
 
     # 检查是否提供了 verification_id
     if not context.args:
         await update.message.reply_text(
-            "使用方法: /getV4Code <verification_id>\n\n"
-            "示例: /getV4Code 6929436b50d7dc18638890d0\n\n"
-            "verification_id 在使用 /verify4 命令后会返回给您。"
+            "Usage: /getV4Code <verification_id>\n\n"
+            "Example: /getV4Code 6929436b50d7dc18638890d0\n\n"
+            "The verification_id is returned after running /verify4."
         )
         return
 
     verification_id = context.args[0].strip()
 
     processing_msg = await update.message.reply_text(
-        "🔍 正在查询认证码，请稍候..."
+        "🔍 Checking the verification code. Please wait..."
     )
 
     try:
@@ -578,8 +585,8 @@ async def getV4Code_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
 
             if response.status_code != 200:
                 await processing_msg.edit_text(
-                    f"❌ 查询失败，状态码：{response.status_code}\n\n"
-                    "请稍后重试或联系管理员。"
+                    f"❌ Lookup failed. Status code: {response.status_code}\n\n"
+                    "Please try again later or contact an admin."
                 )
                 return
 
@@ -589,31 +596,31 @@ async def getV4Code_command(update: Update, context: ContextTypes.DEFAULT_TYPE, 
             redirect_url = data.get("redirectUrl")
 
             if current_step == "success" and reward_code:
-                result_msg = "✅ 认证成功！\n\n"
-                result_msg += f"🎉 认证码：`{reward_code}`\n\n"
+                result_msg = "✅ Verification successful!\n\n"
+                result_msg += f"🎉 Verification code: `{reward_code}`\n\n"
                 if redirect_url:
-                    result_msg += f"跳转链接：\n{redirect_url}"
+                    result_msg += f"Redirect link:\n{redirect_url}"
                 await processing_msg.edit_text(result_msg)
             elif current_step == "pending":
                 await processing_msg.edit_text(
-                    "⏳ 认证仍在审核中，请稍后再试。\n\n"
-                    "通常需要 1-5 分钟，请耐心等待。"
+                    "⏳ Verification is still under review. Please try again later.\n\n"
+                    "This usually takes 1-5 minutes. Thank you for your patience."
                 )
             elif current_step == "error":
                 error_ids = data.get("errorIds", [])
                 await processing_msg.edit_text(
-                    f"❌ 认证失败\n\n"
-                    f"错误信息：{', '.join(error_ids) if error_ids else '未知错误'}"
+                    f"❌ Verification failed\n\n"
+                    f"Error details: {', '.join(error_ids) if error_ids else 'Unknown error'}"
                 )
             else:
                 await processing_msg.edit_text(
-                    f"⚠️ 当前状态：{current_step}\n\n"
-                    "认证码尚未生成，请稍后重试。"
+                    f"⚠️ Current status: {current_step}\n\n"
+                    "The verification code is not available yet. Please try again later."
                 )
 
     except Exception as e:
-        logger.error("获取 Bolt.new 认证码失败: %s", e)
+        logger.error("Failed to fetch Bolt.new verification code: %s", e)
         await processing_msg.edit_text(
-            f"❌ 查询过程中出现错误：{str(e)}\n\n"
-            "请稍后重试或联系管理员。"
+            f"❌ An error occurred during lookup: {str(e)}\n\n"
+            "Please try again later or contact an admin."
         )

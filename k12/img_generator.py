@@ -40,7 +40,7 @@ def generate_teacher_pdf(first_name: str, last_name: str) -> bytes:
     output = BytesIO()
     pisa_status = pisa.CreatePDF(html, dest=output, encoding="utf-8")
     if pisa_status.err:
-        raise Exception("PDF 生成失败")
+        raise Exception("PDF generation failed")
 
     pdf_data = output.getvalue()
     output.close()
@@ -53,7 +53,8 @@ def generate_teacher_png(first_name: str, last_name: str) -> bytes:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
         raise RuntimeError(
-            "需要安装 playwright，请执行 `pip install playwright` 然后 `playwright install chromium`"
+            "Playwright is required. Run `pip install playwright` then "
+            "`playwright install chromium`."
         ) from exc
 
     html = _render_template(first_name, last_name)
